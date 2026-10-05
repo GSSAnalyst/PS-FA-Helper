@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "PeopleSoft FA Helper",
+  "version": "0.2.0",
+  "description": "PeopleSoft Financial Aid helper: ask about errors, processes and screenshots, with answers from PeopleBooks, FSA, COD and eCFR.",
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "https://api.anthropic.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open PeopleSoft FA Helper"
+  }
+}

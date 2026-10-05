@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PeopleSoft FA Helper</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <header class="bar">
+    <h1>FA Helper</h1>
+    <div class="bar-actions">
+      <button id="newChat" class="ghost" title="Start a new question">New</button>
+      <button id="openSettings" class="ghost" title="Settings">Settings</button>
+    </div>
+  </header>
+
+  <!-- Chat view -->
+  <main id="chatView">
+    <section id="thread" aria-live="polite">
+      <div id="empty" class="empty">
+        <h2>Paste an error or ask a question</h2>
+        <p>Answers come from the full Financial Aid PeopleBook, FSA Partner Connect (COD Technical Reference, ISIR Guide, FSA Handbook), StudentAid.gov, CSAC and eCFR, with links to each source.</p>
+        <div class="starters">
+          <button data-starter="Explain this PeopleSoft error and how to fix it:&#10;&#10;">Explain an error</button>
+          <button data-starter="Pell / COD question: ">Pell or COD question</button>
+          <button data-starter="Direct Loan question: ">Direct Loan question</button>
+          <button data-starter="Where in PeopleSoft do I set up or check ">Find a setup page</button>
+          <button data-starter="What is on this screen, and what should I check next?">Explain a screenshot</button>
+          <button data-starter="What does this COD edit / reject code mean and how do I fix it in PeopleSoft? ">COD reject code</button>
+        </div>
+        <p class="tip">Tip: paste a screenshot straight into the box (Mac: Cmd+Ctrl+Shift+4, Windows: Win+Shift+S), or drag one in. You can also highlight an error on any page, right-click, and choose “Ask FA Helper about this”.</p>
+      </div>
+    </section>
+
+    <form id="composer" autocomplete="off">
+      <div id="attachments" class="attachments" hidden></div>
+      <p id="imageWarning" class="image-warning" hidden>Screenshots are sent as they are. ID masking can’t hide names or IDs inside images, so crop or cover student information first.</p>
+      <textarea id="input" rows="3" placeholder="Paste an error message or a screenshot, or describe what's happening…"></textarea>
+      <div class="composer-row">
+        <button id="attach" type="button" class="ghost" title="Attach screenshots">+ Screenshot</button>
+        <input id="fileInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden>
+        <span id="maskNote" class="mask-note">ID numbers in text are masked</span>
+        <button id="send" type="submit" class="primary">Ask</button>
+      </div>
+    </form>
+  </main>
+
+  <!-- Settings view -->
+  <section id="settingsView" hidden>
+    <h2>Settings</h2>
+    <label for="apiKey">Claude API key</label>
+    <input id="apiKey" type="password" placeholder="sk-ant-…" spellcheck="false">
+    <p class="help">Stored only in this browser. Get one at console.anthropic.com.</p>
+
+    <label for="model">Model</label>
+    <select id="model">
+      <option value="claude-sonnet-5-5">Claude Sonnet 5.5 (recommended)</option>
+      <option value="claude-opus-5-5">Claude Opus 5.5 (deepest, slower)</option>
+      <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fastest, cheapest)</option>
+    </select>
+
+    <label class="check"><input id="maskIds" type="checkbox" checked> Mask SSNs and 7–10 digit ID numbers before sending</label>
+
+    <label for="officeNotes">Office notes</label>
+    <textarea id="officeNotes" rows="9" placeholder="Things only your office knows. Examples:&#10;- Cal ISIR load is a custom process (FxDSKP), not delivered&#10;- Our MCS setup uses custom SCF tables&#10;- Known issue: FAN letter PDF fails for aid year 2027 (Oracle SR open)"></textarea>
+    <p class="help">Sent with every question so answers fit your setup. Don't put student data here.</p>
+
+    <div class="settings-row">
+      <button id="cancelSettings" class="ghost" type="button">Cancel</button>
+      <button id="saveSettings" class="primary" type="button">Save settings</button>
+    </div>
+  </section>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>
