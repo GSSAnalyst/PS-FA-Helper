@@ -1,4 +1,5 @@
-import { askClaude, maskIds } from "./claude.js";
+import { askClaude, checkKey, maskIds } from "./claude.js";
+import { TEAM_API_KEY } from "./config.js";
 import { renderMarkdown } from "./markdown.js";
 
 const $ = id => document.getElementById(id);
@@ -7,6 +8,10 @@ let settings = { apiKey: "", model: "claude-sonnet-5-5", maskIds: true, officeNo
 let history = [];   // [{role, content}] history for follow-up questions (user turns may include screenshots)
 let attachments = []; // screenshots waiting to be sent: [{media_type, data, url}]
 let busy = false;
+
+// The team build ships with a shared key (config.js), so staff never see a key field.
+const teamKey = (TEAM_API_KEY || "").trim();
+const apiKey = () => teamKey || settings.apiKey;
 
 const MAX_IMAGES = 5;
 const MAX_EDGE = 2000;               // px; keeps screenshot text legible without huge requests
@@ -26,11 +31,30 @@ function showSettings(show) {
     $("model").value = settings.model;
     $("maskIds").checked = settings.maskIds;
     $("officeNotes").value = settings.officeNotes || "";
+    $("keySection").hidden = !!teamKey;
+    $("welcome").hidden = !!apiKey();
+    $("cancelSettings").hidden = !apiKey();
+    setKeyStatus("Stored only in this browser and sent only to Anthropic.");
   }
 }
+function setKeyStatus(text, state = "") {
+  const el = $("keyStatus");
+  el.textContent = text;
+  el.className = `help ${state}`;
+}
+$("testKey").onclick = async () => {
+  const key = $("apiKey").value.trim();
+  if (!key) { setKeyStatus("Paste a key first.", "bad"); return; }
+  $("testKey").disabled = true;
+  setKeyStatus("Checking…");
+  const problem = await checkKey(key);
+  $("testKey").disabled = false;
+  setKeyStatus(problem || "Key works. Click Save settings.", problem ? "bad" : "good");
+};
 $("openSettings").onclick = () => showSettings(true);
 $("cancelSettings").onclick = () => showSettings(false);
 $("saveSettings").onclick = async () => {
+  if (!teamKey && !$("apiKey").value.trim()) { setKeyStatus("A Claude API key is required.", "bad"); $("apiKey").focus(); return; }
   settings = {
     apiKey: $("apiKey").value.trim(),
     model: $("model").value,
@@ -182,7 +206,7 @@ async function ask(raw) {
   const images = attachments;
   const question = raw.trim() || (images.length ? "What does this screenshot show, and what should I do about it?" : "");
   if (!question || busy) return;
-  if (!settings.apiKey) { showSettings(true); $("apiKey").focus(); return; }
+  if (!apiKey()) { showSettings(true); $("apiKey").focus(); return; }
 
   const outgoing = settings.maskIds ? maskIds(question) : question;
   const bubble = add(div("msg-user"));
@@ -205,7 +229,7 @@ async function ask(raw) {
   history.push({ role: "user", content });
   try {
     const result = await askClaude({
-      apiKey: settings.apiKey, model: settings.model,
+      apiKey: apiKey(), model: settings.model,
       history, officeNotes: settings.officeNotes,
       onStatus: status => { waiting.textContent = status; thread.scrollTop = thread.scrollHeight; }
     });
@@ -218,7 +242,9 @@ async function ask(raw) {
     history.pop();
     if (images.length && !attachments.length) { attachments = images; renderAttachments(); }   // let them retry
     waiting.remove();
-    add(div("error")).textContent = err.message;
+    add(div("error")).textContent = teamKey && err.status === 401
+      ? "The team's API key isn't working. Let whoever manages FA Helper know."
+      : err.message;
   } finally {
     busy = false; sendBtn.disabled = false; input.focus();
   }
@@ -247,6 +273,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 // ---------- Start ----------
+$("version").textContent = `FA Helper ${chrome.runtime.getManifest().version}`;
 await loadSettings();
-if (!settings.apiKey) showSettings(true);
+if (!apiKey()) showSettings(true);
 await takePending();

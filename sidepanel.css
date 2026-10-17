@@ -8,12 +8,15 @@
   --mist: #eef3f7;
   --line: #d3dde6;
   --danger: #b3261e;
+  --on-bay: #ffffff;     /* text on primary buttons */
+  --bar: #0d4f7a;        /* header stays deep blue in both themes */
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --ink: #e4ebf2; --muted: #9aabbd; --bay: #5ba9dc; --bay-deep: #7dbde6;
     --gold: #f0bd3a; --paper: #151c24; --mist: #1e2833; --line: #2f3d4b; --danger: #ff8a80;
+    --on-bay: #0b1a26; --bar: #0b3350;
   }
 }
 * { box-sizing: border-box; }
@@ -28,7 +31,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .bar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px; background: var(--bay); color: #fff;
+  padding: 10px 14px; background: var(--bar); color: #fff;
 }
 .bar h1 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: .01em; }
 .bar .ghost { color: #fff; border-color: rgba(255,255,255,.35); }
@@ -84,7 +87,7 @@ main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .mask-note { font-size: 12px; color: var(--muted); }
 
 .primary {
-  background: var(--bay); color: #fff; border: 1px solid var(--bay);
+  background: var(--bay); color: var(--on-bay); border: 1px solid var(--bay);
   border-radius: 8px; padding: 7px 16px; cursor: pointer; font-weight: 600;
 }
 .primary:hover { background: var(--bay-deep); }
@@ -126,3 +129,17 @@ main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .mask-note.warn { color: var(--danger); }
 .msg-images { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .msg-images img { max-height: 120px; max-width: 100%; border-radius: 6px; border: 1px solid var(--line); }
+
+/* Settings: onboarding and key check */
+.welcome {
+  padding: 10px 12px; border-radius: 8px; margin-bottom: 4px;
+  background: var(--mist); border-left: 3px solid var(--gold);
+}
+.welcome a, .about a { color: var(--bay); }
+.key-row { display: flex; gap: 6px; }
+.key-row input { flex: 1; min-width: 0; }
+.help.good { color: #1e7b3a; }
+.help.bad { color: var(--danger); }
+@media (prefers-color-scheme: dark) { .help.good { color: #7fd69a; } }
+.about { margin-top: 20px; text-align: center; }
+[hidden] { display: none !important; }

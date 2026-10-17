@@ -110,6 +110,25 @@ async function runLocalTool(block) {
   };
 }
 
+// Cheap check that a key works (lists models; no tokens used). Returns null when OK, else a message.
+export async function checkKey(apiKey) {
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/models?limit=1", {
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      }
+    });
+    if (res.ok) return null;
+    if (res.status === 401) return "This key was rejected. Copy it again from console.anthropic.com.";
+    if (res.status === 403) return "This key doesn't have permission to use the API.";
+    return `Couldn't verify the key (error ${res.status}). Try again in a minute.`;
+  } catch {
+    return "Couldn't reach Anthropic. Check your internet connection or network firewall.";
+  }
+}
+
 export async function askClaude({ apiKey, model, history, officeNotes, onStatus = () => {} }) {
   const tools = [...LOCAL_TOOLS, ...webTools(model)];
   const fallbacks = model === "claude-sonnet-5-5" || model === "claude-opus-5-5";
@@ -146,8 +165,9 @@ export async function askClaude({ apiKey, model, history, officeNotes, onStatus 
     if (!res.ok) {
       let detail = "";
       try { detail = (await res.json()).error?.message || ""; } catch {}
-      if (res.status === 401) throw new Error("The API key was rejected. Check it in Settings.");
+      if (res.status === 401) throw Object.assign(new Error("The API key was rejected. Check it in Settings."), { status: 401 });
       if (res.status === 429) throw new Error("Rate limit reached. Wait a minute and try again.");
+      if (/credit balance/i.test(detail)) throw new Error("The Anthropic account behind this key is out of credits. Add credits under Plans & Billing at console.anthropic.com.");
       if (res.status === 413) throw new Error("The question is too large. Try fewer or smaller screenshots, or start a new chat.");
       throw new Error(`Claude API error ${res.status}${detail ? ": " + detail : ""}`);
     }

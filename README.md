@@ -8,6 +8,23 @@ or ask a Pell / Direct Loan / COD / setup question. Claude searches:
 - **FSA Partner Connect**: COD Technical Reference, ISIR Guide, FSA Handbook, Electronic
   Announcements, Dear Colleague Letters, plus StudentAid.gov, CSAC, eCFR and the Federal Register.
 
+## Team build (shared API key)
+To let the team use one key with no setup:
+1. Create a key for this tool in the Claude Console (a separate workspace makes usage easy to track),
+   and set a **monthly spend limit** on it.
+2. Paste the key into `config.js` (`TEAM_API_KEY = "sk-ant-..."`). The file is git-ignored, so the
+   key never reaches GitHub. If `config.js` is missing, copy `config.example.js`.
+3. Run `./tools/package.sh` and share `dist/fa-helper-<version>.zip` with the team privately
+   (Teams/SharePoint/shared drive). Each person unzips it and uses **Load unpacked** (below).
+
+The key is inside the build, so anyone with the zip can read it. Don't post the team build on the
+Chrome Web Store or anywhere public. If it leaks, delete the key in the Console and rebuild with a
+new one. Leave `TEAM_API_KEY` empty to go back to each person entering their own key.
+
+## Install from the Chrome Web Store
+Open the store link your team lead shared, click **Add to Chrome**, then pin the extension and
+click its icon. Paste your Claude API key in Settings, click **Test key**, then **Save settings**.
+
 ## Install (developer mode)
 1. Unzip this folder somewhere permanent.
 2. Open chrome://extensions and turn on **Developer mode** (top right).
@@ -28,10 +45,16 @@ Note: web search must be enabled for your organization in the Claude Console.
 ## Files
 - manifest.json   – extension config (Manifest V3)
 - background.js   – opens the side panel, adds the right-click menu
+- config.js       – team API key (git-ignored; template in config.example.js)
 - claude.js       – Claude API call, allowed search domains, reference library, system prompt, ID masking
 - kb.js           – offline search over the bundled PeopleBook (the search_peoplebook tool)
 - kb/             – the PeopleBook index (built by tools/build_kb.py)
 - tools/build_kb.py – rebuilds the index from Oracle's PDF
+- tools/make_icons.py – redraws icons/ (no dependencies)
+- tools/package.sh – builds the Chrome Web Store zip in dist/
+- PRIVACY.md – privacy policy (link it from the store listing)
+- docs/PUBLISHING.md – step-by-step store submission, with form answers
+- docs/ROADMAP.md – plan for the hosted (Supabase) version and national rollout
 - sidepanel.*     – the panel UI
 - markdown.js     – safe rendering of answers
 
@@ -46,4 +69,8 @@ The index is built from Oracle's PDF:
 
 To add another book (for example Student Financials, `cs92lssf-b042022.pdf`), add it to BOOKS in
 tools/build_kb.py, run the script, and add the new `kb/<id>.json` file to KB_FILES in kb.js.
-# PS-FA-Helper
+
+## Releasing a new version
+1. Bump `version` in manifest.json.
+2. Run `./tools/package.sh`.
+3. Upload `dist/fa-helper-<version>.zip` in the Chrome Web Store developer console (see docs/PUBLISHING.md).

@@ -49,9 +49,20 @@
   <!-- Settings view -->
   <section id="settingsView" hidden>
     <h2>Settings</h2>
+    <div id="keySection">
+    <div id="welcome" class="welcome" hidden>
+      <strong>Welcome!</strong> FA Helper uses your own Claude API key, so questions are billed to your
+      Anthropic account (typically a few cents each). Create a key at
+      <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>,
+      paste it below, and click <em>Test key</em>.
+    </div>
     <label for="apiKey">Claude API key</label>
-    <input id="apiKey" type="password" placeholder="sk-ant-…" spellcheck="false">
-    <p class="help">Stored only in this browser. Get one at console.anthropic.com.</p>
+    <div class="key-row">
+      <input id="apiKey" type="password" placeholder="sk-ant-…" spellcheck="false">
+      <button id="testKey" class="ghost" type="button">Test key</button>
+    </div>
+    <p id="keyStatus" class="help">Stored only in this browser and sent only to Anthropic.</p>
+    </div>
 
     <label for="model">Model</label>
     <select id="model">
@@ -70,6 +81,10 @@
       <button id="cancelSettings" class="ghost" type="button">Cancel</button>
       <button id="saveSettings" class="primary" type="button">Save settings</button>
     </div>
+    <p class="help about">
+      <span id="version"></span> ·
+      <a href="https://github.com/GSSAnalyst/PS-FA-Helper/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy policy</a>
+    </p>
   </section>
 
   <script type="module" src="sidepanel.js"></script>
